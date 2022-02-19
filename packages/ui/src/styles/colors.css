@@ -1,0 +1,19 @@
+:root {
+	--color-background: #f9f9f9;
+	--color-label-primary: #101010;
+	--color-label-secondary: rgba(60, 60, 67, 0.6);
+	--color-separator: #e5e5ea;
+	--color-black: rgb(0, 0, 0);
+	--color-white: rgb(255, 255, 255);
+	--color-red: rgb(255, 59, 48);
+	--color-orange: rgb(255, 149, 0);
+	--color-yellow: rgb(255, 204, 0);
+	--color-green: rgb(52, 199, 89);
+	--color-blue: rgb(0, 122, 255);
+	--color-gray-1: rgb(142, 142, 147);
+	--color-gray-2: rgb(174, 174, 178);
+	--color-gray-3: rgb(199, 199, 204);
+	--color-gray-4: rgb(209, 209, 214);
+	--color-gray-5: rgb(229, 229, 234);
+	--color-gray-6: rgb(242, 242, 247);
+}

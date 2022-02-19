@@ -1,0 +1,143 @@
+version: "3.5"
+
+secrets:
+  db_user:
+    file: ./secrets/db_user
+  db_password:
+    file: ./secrets/db_password
+  db_name:
+    file: ./secrets/db_name
+  redis_password:
+    file: ./secrets/redis_password
+  session_secret:
+    file: ./secrets/session_secret
+  mail_account_password:
+    file: ./secrets/mail_account_password
+  cf_key:
+    file: ./secrets/cf_key
+  cf_email:
+    file: ./secrets/cf_email
+
+networks:
+  main:
+    name: main
+
+services:
+  db:
+    image: postgres:14
+    ports:
+      - "5432:5432/tcp"
+    networks:
+      - main
+    secrets:
+      - db_user
+      - db_password
+      - db_name
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+      - ./docker/entrypoint-db.sh:/entrypoint-db.sh
+    entrypoint: /entrypoint-db.sh
+
+  redis:
+    image: redis:6-alpine
+    ports:
+      - "6379:6379/tcp"
+    networks:
+      - main
+    secrets:
+      - redis_password
+    volumes:
+      - ./docker/entrypoint-redis.sh:/entrypoint-redis.sh
+    entrypoint: /entrypoint-redis.sh
+
+  api:
+    image: ghcr.io/xyz27900/bluevpn-api
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3000:3000/tcp"
+    networks:
+      - main
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      HOSTNAME: bluevpn.tech
+      MAIL_SERVICE: Yandex
+      MAIL_ACCOUNT_EMAIL: support@bluevpn.tech
+      BLOCKCHAIN_URL: https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161
+      BLOCKCHAIN_WALLET: '0xD3F76faC69C7025865a2250A9CCD4145FAF90B2B'
+      QUEUE_NAME: users
+      CONFIGS_DIR: /configs
+    secrets:
+      - db_user
+      - db_password
+      - db_name
+      - redis_password
+      - session_secret
+      - mail_account_password
+    volumes:
+      - ./data/configs:/configs
+      - ./docker/entrypoint-api.sh:/entrypoint-api.sh
+    entrypoint: /entrypoint-api.sh
+    command: node main.js
+
+  cron:
+    image: ghcr.io/xyz27900/bluevpn-cron:latest
+    networks:
+      - main
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_NAME: users
+    secrets:
+      - db_user
+      - db_password
+      - db_name
+      - redis_password
+    volumes:
+     - ./docker/entrypoint-cron.sh:/entrypoint-cron.sh
+    entrypoint: /entrypoint-cron.sh
+    command: crond -f -l 8
+
+  openvpn:
+    image: ghcr.io/xyz27900/bluevpn-openvpn:latest
+    cap_add:
+      - NET_ADMIN
+    ports:
+      - "1194:1194/udp"
+      - "5000:5000/tcp"
+    networks:
+      - main
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      QUEUE_NAME: users
+    secrets:
+      - redis_password
+    volumes:
+      - ./data/openvpn:/etc/openvpn
+      - ./docker/entrypoint-openvpn.sh:/entrypoint-openvpn.sh
+    entrypoint: /entrypoint-openvpn.sh
+
+  ui:
+    image: ghcr.io/xyz27900/bluevpn-ui
+    depends_on:
+      - api
+    ports:
+      - "80:80/tcp"
+      - "443:443/tcp"
+    networks:
+      - main
+    secrets:
+      - cf_key
+      - cf_email
+    volumes:
+      - ./data/configs:/configs
+      - ./docker/entrypoint-ui.sh:/entrypoint-ui.sh
+    entrypoint: /entrypoint-ui.sh
+    command: nginx -g 'daemon off;'

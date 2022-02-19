@@ -1,0 +1,186 @@
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  npm-packages:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Cache node modules
+        uses: actions/cache@v2
+        env:
+          cache-name: cache-node-modules
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Test "openvpn" npm package
+        run: |
+          cd packages/openvpn
+          npm run test
+
+      - name: Build "common" npm package
+        run: |
+          cd packages/common
+          npm run build
+
+      - name: Build "api" npm package
+        run: |
+          cd packages/api
+          npm run build
+
+      - name: Build "cron" npm package
+        run: |
+          cd packages/cron
+          npm run build
+
+      - name: Build "openvpn" npm package
+        run: |
+          cd packages/openvpn
+          npm run build
+
+      - name: Build "ui" npm package
+        run: |
+          cd packages/ui
+          npm run build
+
+      - name: Publish "common" npm package
+        run: |
+          cd packages/common
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }} >> .npmrc
+          npm publish
+
+      - name: Publish "api" package
+        run: |
+          cd packages/api
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }} >> .npmrc
+          npm publish
+
+      - name: Publish "cron" npm package
+        run: |
+          cd packages/cron
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }} >> .npmrc
+          npm publish
+
+      - name: Publish "openvpn" npm package
+        run: |
+          cd packages/openvpn
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }} >> .npmrc
+          npm publish
+
+      - name: Publish "ui" npm package
+        run: |
+          cd packages/ui
+          echo //npm.pkg.github.com/:_authToken=${{ secrets.ACCESS_TOKEN }} >> .npmrc
+          npm publish
+
+  docker-images:
+    runs-on: ubuntu-latest
+    needs: npm-packages
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Login to Github Container Registry
+        run: echo ${{ secrets.ACCESS_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
+
+      - name: Build "api" docker image
+        run: |
+          cd packages/api
+          docker build -t ghcr.io/xyz27900/bluevpn-api:latest --build-arg ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }} .
+
+      - name: Build "cron" docker image
+        run: |
+          cd packages/cron
+          docker build -t ghcr.io/xyz27900/bluevpn-cron:latest --build-arg ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }} .
+
+      - name: Build "openvpn" docker image
+        run: |
+          cd packages/openvpn
+          docker build -t ghcr.io/xyz27900/bluevpn-openvpn:latest --build-arg ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }} .
+
+      - name: Build "ui" docker image
+        run: |
+          cd packages/ui
+          docker build -t ghcr.io/xyz27900/bluevpn-ui:latest --build-arg ACCESS_TOKEN=${{ secrets.ACCESS_TOKEN }} .
+
+      - name: Publish "api" docker image
+        run: docker push ghcr.io/xyz27900/bluevpn-api:latest
+
+      - name: Publish "cron" docker image
+        run: docker push ghcr.io/xyz27900/bluevpn-cron:latest
+
+      - name: Publish "openvpn" docker image
+        run: docker push ghcr.io/xyz27900/bluevpn-openvpn:latest
+
+      - name: Publish "ui" docker image
+        run: docker push ghcr.io/xyz27900/bluevpn-ui:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: docker-images
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Copy configuration files
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          source: "docker/*, docker-compose.yaml, Makefile"
+          target: "/var/www"
+
+      - name: Launch services
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          passphrase: ${{ secrets.SSH_PASSPHRASE }}
+          script: |
+            cd /var/www
+            chmod +x docker/entrypoint-*.sh
+            make pull
+            make stop
+            make setup
+            echo ${{ secrets.DOCKER_CF_EMAIL }} > ./secrets/cf_email
+            echo ${{ secrets.DOCKER_CF_KEY }} > ./secrets/cf_key
+            echo ${{ secrets.DOCKER_DB_NAME }} > ./secrets/db_name
+            echo ${{ secrets.DOCKER_DB_PASSWORD }} > ./secrets/db_password
+            echo ${{ secrets.DOCKER_DB_USER }} > ./secrets/db_user
+            echo ${{ secrets.DOCKER_MAIL_ACCOUNT_PASSWORD }} > ./secrets/mail_account_password
+            echo ${{ secrets.DOCKER_REDIS_PASSWORD }} > ./secrets/redis_password
+            echo ${{ secrets.DOCKER_SESSION_SECRET }} > ./secrets/session_secret
+            make start
+
+  release:
+    runs-on: ubuntu-latest
+    needs: deploy
+
+    steps:
+      - name: Get the version
+        id: version
+        run: echo ::set-output name=tag::${GITHUB_REF/refs\/tags\//}
+
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          name: Release ${{ steps.version.outputs.tag }}
+          token: ${{ secrets.GITHUB_TOKEN }}

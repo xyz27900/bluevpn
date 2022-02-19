@@ -1,0 +1,6 @@
+{
+  "name": "bluevpn",
+  "workspaces": [
+    "packages/**"
+  ]
+}

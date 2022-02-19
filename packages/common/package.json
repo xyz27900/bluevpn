@@ -1,0 +1,29 @@
+{
+  "name": "@xyz27900/bluevpn-common",
+  "version": "0.1.0",
+  "author": "Evgeniy Kozlov",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:xyz27900/bluevpn.git"
+  },
+  "scripts": {
+    "post-build:cjs": "tscpaths -p tsconfig.cjs.json -s dist/cjs -o dist/cjs",
+    "build:cjs": "tsc -p tsconfig.cjs.json && npm run post-build:cjs",
+    "post-build:es": "tscpaths -p tsconfig.cjs.json -s dist/es -o dist/es",
+    "build:es": "cp -r src dist/es && npm run post-build:es",
+    "build": "rm -rf dist && mkdir -p dist && npm run build:cjs && npm run build:es",
+    "lint": "eslint --no-fix src"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.14",
+    "@typescript-eslint/eslint-plugin": "^5.10.2",
+    "@typescript-eslint/parser": "^5.10.2",
+    "eslint": "^8.8.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-import": "^2.25.4",
+    "ts-node": "^10.4.0",
+    "tscpaths": "^0.0.9",
+    "typescript": "^4.5.5"
+  }
+}
