@@ -67,8 +67,6 @@ services:
       HOSTNAME: bluevpn.tech
       MAIL_SERVICE: Yandex
       MAIL_ACCOUNT_EMAIL: support@bluevpn.tech
-      BLOCKCHAIN_URL: https://ropsten.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161
-      BLOCKCHAIN_WALLET: '0xD3F76faC69C7025865a2250A9CCD4145FAF90B2B'
       QUEUE_NAME: users
       CONFIGS_DIR: /configs
     secrets:

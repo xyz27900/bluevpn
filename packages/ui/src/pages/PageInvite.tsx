@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { paymentsApi } from '@/api/payments';
+import { accessApi } from '@/api/access';
 import { UiButton } from '@/components/ui/UiButton';
 import { UiCard } from '@/components/ui/UiCard';
 import { UiContainer } from '@/components/ui/UiContainer';
@@ -11,8 +11,8 @@ import { useToast } from '@/hooks/toast.hooks';
 import { setUser } from '@/store/app';
 import { getError } from '@/utils/api.utils';
 
-export const OrderInvite: React.FC = () => {
-  const [redeemInvite, { isLoading }] = paymentsApi.useRedeemInviteMutation();
+export const PageInvite: React.FC = () => {
+  const [redeemInvite, { isLoading }] = accessApi.useRedeemInviteMutation();
 
   const navigate = useNavigate();
   const toast = useToast();

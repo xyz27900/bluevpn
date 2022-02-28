@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
+import { accessApi } from '@/api/access';
 import { authApi } from '@/api/auth';
-import { paymentsApi } from '@/api/payments';
 import { appReducer } from '@/store/app';
 import { toastReducer } from '@/store/toast';
 
@@ -9,10 +9,10 @@ export const store = configureStore({
     app: appReducer,
     toast: toastReducer,
     [authApi.reducerPath]: authApi.reducer,
-    [paymentsApi.reducerPath]: paymentsApi.reducer,
+    [accessApi.reducerPath]: accessApi.reducer,
   },
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware().concat(authApi.middleware).concat(paymentsApi.middleware),
+    getDefaultMiddleware().concat(authApi.middleware).concat(accessApi.middleware),
 });
 
 export type RootState = ReturnType<typeof store.getState>;

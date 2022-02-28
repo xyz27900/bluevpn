@@ -14,9 +14,6 @@ export enum ApiErrorCode {
   InvalidToken = 1007,
   ExpiredToken = 1008,
 
-  /* Payments */
-  InvalidAccessOption = 3001,
-  InvalidInvite = 3002,
-  TransactionError = 3003,
-  InvalidTransaction = 3004,
+  /* Access */
+  InvalidInvite = 3001,
 }

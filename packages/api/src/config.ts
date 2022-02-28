@@ -21,9 +21,6 @@ export const MAIL_SERVICE = parseString(process.env.MAIL_SERVICE);
 export const MAIL_ACCOUNT_EMAIL = parseString(process.env.MAIL_ACCOUNT_EMAIL);
 export const MAIL_ACCOUNT_PASSWORD = parseString(process.env.MAIL_ACCOUNT_PASSWORD);
 /* ------ */
-export const BLOCKCHAIN_URL = parseString(process.env.BLOCKCHAIN_URL);
-export const BLOCKCHAIN_WALLET = parseString(process.env.BLOCKCHAIN_WALLET);
-/* ------ */
 export const QUEUE_NAME = parseString(process.env.QUEUE_NAME);
 /* ------ */
 export const CONFIGS_DIR = parseString(process.env.CONFIGS_DIR);
