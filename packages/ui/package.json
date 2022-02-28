@@ -16,7 +16,6 @@
   "dependencies": {
     "@reduxjs/toolkit": "^1.7.2",
     "@xyz27900/bluevpn-common": "*",
-    "ethers": "^5.5.4",
     "luxon": "^2.3.0",
     "qrcode.react": "^1.0.1",
     "react": "^17.0.2",

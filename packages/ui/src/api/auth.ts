@@ -1,7 +1,9 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import {
   LoginArgs,
-  LoginReply, ResetPasswordArgs, RestorePasswordArgs,
+  LoginReply,
+  ResetPasswordArgs,
+  RestorePasswordArgs,
   SignUpArgs,
   SignUpReply,
   WhoamiReply,

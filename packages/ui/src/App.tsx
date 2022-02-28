@@ -6,14 +6,11 @@ import { AuthPasswordRestore } from '@/components/auth/AuthPasswordRestore';
 import { AuthSignUp } from '@/components/auth/AuthSignUp';
 import { MiddlewareAuth } from '@/components/middleware/MiddlewareAuth';
 import { MiddlewareMain } from '@/components/middleware/MiddlewareMain';
-import { OrderInvite } from '@/components/order/OrderInvite';
-import { OrderPayment } from '@/components/order/OrderPayment';
-import { PageAccess } from '@/pages/PageAccess';
 import { PageAuth } from '@/pages/PageAuth';
 import { PageDashboard } from '@/pages/PageDashboard';
+import { PageInvite } from '@/pages/PageInvite';
 import { PageMain } from '@/pages/PageMain';
 import { PageNotFound } from '@/pages/PageNotFound';
-import { PageOrder } from '@/pages/PageOrder';
 
 export const App: React.FC = () => {
   return<BrowserRouter>
@@ -29,11 +26,7 @@ export const App: React.FC = () => {
         </Route>
         <Route element={<MiddlewareAuth />}>
           <Route element={<PageMain />}>
-            <Route path="access" element={<PageAccess />} />
-            <Route path="order/*" element={<PageOrder />}>
-              <Route path="invite" element={<OrderInvite />} />
-              <Route path=":id" element={<OrderPayment />} />
-            </Route>
+            <Route path="invite" element={<PageInvite />} />
             <Route path="" element={<PageDashboard />} />
           </Route>
         </Route>

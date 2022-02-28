@@ -1,5 +1,4 @@
 import React from 'react';
-import { PaymentHistory } from '@/components/payment/PaymentHistory';
 import { ProfileAccessStatus } from '@/components/profile/ProfileAccessStatus';
 import { ProfileInstructions } from '@/components/profile/ProfileInstructions';
 import { UiContainer } from '@/components/ui/UiContainer';
@@ -13,7 +12,6 @@ export const PageDashboard: React.FC = () => {
     <UiContainer className="mb-4">
       <ProfileAccessStatus user={user} />
       <ProfileInstructions user={user} />
-      <PaymentHistory />
     </UiContainer> :
     null;
 };

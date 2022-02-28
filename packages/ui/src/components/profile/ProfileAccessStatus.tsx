@@ -20,7 +20,7 @@ export const ProfileAccessStatus: React.FC<ProfileAccessStatusProps> = ({ user }
         type="title-3"
         normal
       >
-        Your subscription
+        Your access
       </UiText>
       <UiText color="gray-1">
         {
@@ -29,20 +29,20 @@ export const ProfileAccessStatus: React.FC<ProfileAccessStatusProps> = ({ user }
               Expires at <UiText color="blue" strong>{ expireDate }</UiText>
             </React.Fragment> :
             <React.Fragment>
-              You don&apos;t have active subscription yet 🙁
+              You don&apos;t have access yet 🙁
             </React.Fragment>
         }
       </UiText>
     </div>
     {
       !expireDate &&
-        <Link to="/access">
+        <Link to="/invite">
           <UiButton
             type="button"
             variant="primary"
             block
           >
-            Choose a plan
+            Redeem an invite
           </UiButton>
         </Link>
     }

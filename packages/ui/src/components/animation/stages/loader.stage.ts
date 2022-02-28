@@ -24,7 +24,7 @@ export class LoaderStage extends AnimationStage {
     return [light1, light2];
   }
 
-  public update(width: number, height: number): void {
+  public update(): void {
     // pass
   }
 
